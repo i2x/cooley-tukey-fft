@@ -24,10 +24,11 @@ Install them with:
 ```bash
 pip install numpy matplotlib sounddevice scipy soundfile
 
+```
 
-
+## Content
 
 chapter01 - FFT concept
 chapter02 - FFT vs SWEEP generator
-chapter04 - FFT vs .wave
+chapter03 - FFT vs .wave
 chapter04 - FFT vs input from microphone

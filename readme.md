@@ -8,12 +8,12 @@ Install them with:
 pip install numpy matplotlib sounddevice scipy soundfile
 
 ```
-
 ### Contents
 - chapter01  FFT concept
 - chapter02  FFT vs SWEEP generator
 - chapter03 - FFT vs .wave
 - chapter04 - FFT vs input from microphone
+- chapter05 - Custom Cooley–Tukey FFT vs input from microphone
 
 ## Overview
 This Python script visualizes and compares continuous and discrete sine waves, their Fast Fourier Transform (FFT) using NumPy, and a custom implementation of the Cooley–Tukey FFT algorithm. It allows users to explore the frequency domain representation of sine waves and interactively adjust the frequency using a slider.

@@ -22,4 +22,4 @@ Ensure the following Python packages are installed:
 
 Install them with:
 ```bash
-pip install numpy matplotlib
+pip install numpy matplotlib sounddevice scipy soundfile

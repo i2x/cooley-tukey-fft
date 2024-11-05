@@ -66,13 +66,13 @@ try:
         # Apply smoothing (moving average) for visualization
         smoothed_fft_values = np.convolve(fft_values, np.ones(5)/5, mode='same')
         
-        # Focus on the 60 Hz to 6000 Hz range
-        valid_indices = (freqs >= 60) & (freqs <= 6000)
+        # Focus on the 0 Hz to 20,000 Hz range
+        valid_indices = (freqs >= 0) & (freqs <= 20000)
         freqs_focus = freqs[valid_indices]
         fft_values_focus = smoothed_fft_values[valid_indices]
         
-        # Reduce data to 100 points for better visualization
-        indices = np.linspace(0, len(freqs_focus) - 1, 100, dtype=int)
+        # Reduce data to 200 points for better visualization
+        indices = np.linspace(0, len(freqs_focus) - 1, 200, dtype=int)
         reduced_freqs = freqs_focus[indices]
         reduced_fft_values = fft_values_focus[indices]
         
@@ -83,7 +83,10 @@ try:
         
         # Calculate the percentage of each amplitude relative to the maximum amplitude
         max_amp = np.max(reduced_fft_values)
-        top_percentages = (top_amps / max_amp) * 100
+        if max_amp > 0:
+            top_percentages = (top_amps / max_amp) * 100
+        else:
+            top_percentages = [0] * len(top_amps)
         
         # Create data for the table
         table_data = [[f"{freq:.2f} Hz", f"{amp:.2f}", f"{percent:.2f} %"]
@@ -95,11 +98,12 @@ try:
         
         # Plot the FFT spectrum with reduced data
         ax.bar(reduced_freqs, reduced_fft_values, width=(reduced_freqs[1] - reduced_freqs[0]), align='center')
-        ax.set_xlim(60, 6000)  # Display only 60 Hz to 6000 Hz range
-        ax.set_ylim(0, max(reduced_fft_values) * 1.1)
+        ax.set_xlim(0, 20000)  # Display only 0 Hz to 20,000 Hz range
+        ax.set_ylim(0, 2.5)
+
         ax.set_xlabel('Frequency (Hz)')
         ax.set_ylabel('Amplitude')
-        ax.set_title('Real-Time FFT Spectrum (60 Hz to 6000 Hz) with 100 Bars')
+        ax.set_title('Real-Time FFT Spectrum (0 Hz to 20,000 Hz) with 200 Bars')
         
         # Display the table with the top 4 frequency-amplitude pairs
         ax_table.axis('tight')
@@ -109,7 +113,7 @@ try:
         table.set_fontsize(10)
         table.scale(1, 1.5)  # Adjust table size
         
-        plt.pause(0.05)  # Reduce pause time for smoother updates
+        plt.pause(0.02)  # Reduce pause time for smoother updates
 
 except KeyboardInterrupt:
     print("Stopped by user")

@@ -23,3 +23,11 @@ Ensure the following Python packages are installed:
 Install them with:
 ```bash
 pip install numpy matplotlib sounddevice scipy soundfile
+
+
+
+
+chapter01 - FFT concept
+chapter02 - FFT vs SWEEP generator
+chapter04 - FFT vs .wave
+chapter04 - FFT vs input from microphone

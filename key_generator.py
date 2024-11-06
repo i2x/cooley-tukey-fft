@@ -1,27 +1,26 @@
 import numpy as np
 from scipy.io.wavfile import write
-import matplotlib.pyplot as plt
 
 # Parameters
-sampling_rate = 44100  # in Hz
-duration = 5  # in seconds
-t = np.linspace(0, duration, int(sampling_rate * duration), endpoint=False)
+sample_rate = 44100  # 44.1 kHz sample rate
+duration = 5  # 2 seconds duration
+t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
 
-# Frequencies
-frequencies = [1000, 2000, 4000]  # in Hz
+# Frequency components
+frequency1 = 1000  # 1000 Hz
+frequency2 = 2000  # 2000 Hz
+frequency3 = 3000  # 3000 Hz
 
-# Generate combined sine wave
-combined_wave = sum(0.5 * np.sin(2 * np.pi * f * t) for f in frequencies)  # amplitude reduced to avoid clipping
+# Signal creation
+signal = (4 * np.sin(2 * np.pi * frequency1 * t) +
+          2 * np.sin(2 * np.pi * frequency2 * t) +
+          np.sin(2 * np.pi * frequency3 * t))
 
-# Save to .wav file
-filename = "key.wav"
-write(filename, sampling_rate, np.int16(combined_wave * 32767))  # Convert to 16-bit PCM format
-print(f"Generated {filename}")
+# Normalize signal to prevent clipping
+signal = signal / np.max(np.abs(signal))
 
-# Optional: Plot combined sine wave
-plt.figure(figsize=(10, 4))
-plt.plot(t[:1000], combined_wave[:1000])  # Plot a small segment for clarity
-plt.title("Combined Sine Wave (1000 Hz + 2000 Hz + 4000 Hz)")
-plt.xlabel("Time [s]")
-plt.ylabel("Amplitude")
-plt.show()
+# Convert to 16-bit PCM format
+signal_pcm = np.int16(signal * 32767)
+
+# Write to a .wav file
+write("key.wav", sample_rate, signal_pcm)

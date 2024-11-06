@@ -55,7 +55,7 @@ stream = sd.InputStream(callback=audio_callback, channels=1, samplerate=fs, bloc
 stream.start()
 
 # Define target frequency ranges for door unlock
-target_frequencies = [1000, 2000, 4000]
+target_frequencies = [1000, 3000, 4000]
 tolerance = 100  # ± tolerance in Hz
 
 try:
@@ -80,51 +80,51 @@ try:
         reduced_freqs = freqs_focus[indices]
         reduced_fft_values = fft_values_focus[indices]
         
-        # Find the top 4 frequency-amplitude pairs
-        top_indices = np.argsort(reduced_fft_values)[-4:][::-1]
+        # Find the top 3 frequency-amplitude pairs
+        top_indices = np.argsort(reduced_fft_values)[-3:][::-1]
         top_freqs = reduced_freqs[top_indices]
-        top_amps = reduced_fft_values[top_indices]
         
-        # Calculate the percentage of each amplitude relative to the maximum amplitude
-        max_amp = np.max(reduced_fft_values)
-        if max_amp > 0:
-            top_percentages = (top_amps / max_amp) * 100
-        else:
-            top_percentages = [0] * len(top_amps)
+        # Debug: Print the top detected frequencies and check for matches
+        print("Top Detected Frequencies:")
+        matching_frequencies = []
+        for top_freq in top_freqs:
+            matched = any(abs(top_freq - target) <= tolerance for target in target_frequencies)
+            if matched:
+                matching_frequencies.append(top_freq)
+            print(f"  Frequency: {top_freq:.2f} Hz - Match: {'Yes' if matched else 'No'}")
+
+        # Unlock if we have at least three matching frequencies
+        unlock = len(matching_frequencies) >= 3
+        print(f"Unlock Status: {'Unlocked' if unlock else 'Locked'}")
         
-        # Check if top frequencies are within target range for unlocking
-        unlock = all(any(abs(top_freq - target) <= tolerance for top_freq in top_freqs) for target in target_frequencies)
+        # Create data for the table with frequency, amplitude, and unlock status
+        table_data = [[f"{freq:.2f} Hz", f"{amp:.2f}"] for freq, amp in zip(top_freqs, reduced_fft_values[top_indices])]
         
-        # Create data for the table
-        table_data = [[f"{freq:.2f} Hz", f"{amp:.2f}", f"{percent:.2f} %"]
-                      for freq, amp, percent in zip(top_freqs, top_amps, top_percentages)]
-        
-        # Add door status row
+        # Update "Status" row to have two columns
         status = "Door Unlocked" if unlock else "Door Locked"
-        table_data.append(["Status", status, ""])
+        table_data.append(["Status", status])
         
-        # Clear previous plots and tables
+        # Clear and update plots
         ax.clear()
         ax_table.clear()
         
-        # Plot the FFT spectrum with reduced data
+        # Plot the FFT spectrum
         ax.bar(reduced_freqs, reduced_fft_values, width=(reduced_freqs[1] - reduced_freqs[0]), align='center')
-        ax.set_xlim(0, 6000)  # Display only 0 Hz to 6000 Hz range
+        ax.set_xlim(0, 6000)
         ax.set_ylim(0, 18)
-
         ax.set_xlabel('Frequency (Hz)')
         ax.set_ylabel('Amplitude')
         ax.set_title('Real-Time FFT Spectrum (0 Hz to 6000 Hz) with 61 Bars')
         
-        # Display the table with the top 4 frequency-amplitude pairs and door status
+        # Display the table
         ax_table.axis('tight')
         ax_table.axis('off')
-        table = ax_table.table(cellText=table_data, colLabels=["Frequency", "Amplitude", "% of Max"], loc='center')
+        table = ax_table.table(cellText=table_data, colLabels=["Frequency", "Amplitude"], loc='center')
         table.auto_set_font_size(False)
         table.set_fontsize(10)
-        table.scale(1, 1.5)  # Adjust table size
+        table.scale(1, 1.5)
         
-        plt.pause(0.04)  # Reduce pause time for smoother updates
+        plt.pause(0.1)
 
 except KeyboardInterrupt:
     print("Stopped by user")

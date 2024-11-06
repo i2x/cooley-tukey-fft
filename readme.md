@@ -5,7 +5,7 @@
 
 Install them with:
 ```bash
-pip install numpy matplotlib sounddevice scipy soundfile
+pip install numpy matplotlib sounddevice scipy soundfile pyserial
 
 ```
 ### Contents

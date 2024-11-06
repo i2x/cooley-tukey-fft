@@ -66,13 +66,13 @@ try:
         # Apply smoothing (moving average) for visualization
         smoothed_fft_values = np.convolve(fft_values, np.ones(5)/5, mode='same')
         
-        # Focus on the 0 Hz to 20,000 Hz range
-        valid_indices = (freqs >= 0) & (freqs <= 20000)
+        # Focus on the 0 Hz to 6000 Hz range
+        valid_indices = (freqs >= 0) & (freqs <= 6000)
         freqs_focus = freqs[valid_indices]
         fft_values_focus = smoothed_fft_values[valid_indices]
         
-        # Reduce data to 200 points for better visualization
-        indices = np.linspace(0, len(freqs_focus) - 1, 200, dtype=int)
+        # Reduce data to 61 points for better visualization
+        indices = np.linspace(0, len(freqs_focus) - 1, 61, dtype=int)
         reduced_freqs = freqs_focus[indices]
         reduced_fft_values = fft_values_focus[indices]
         
@@ -98,12 +98,12 @@ try:
         
         # Plot the FFT spectrum with reduced data
         ax.bar(reduced_freqs, reduced_fft_values, width=(reduced_freqs[1] - reduced_freqs[0]), align='center')
-        ax.set_xlim(0, 20000)  # Display only 0 Hz to 20,000 Hz range
-        ax.set_ylim(0, 2.5)
+        ax.set_xlim(0, 6000)  # Display only 0 Hz to 6000 Hz range
+        ax.set_ylim(0, 18)
 
         ax.set_xlabel('Frequency (Hz)')
         ax.set_ylabel('Amplitude')
-        ax.set_title('Real-Time FFT Spectrum (0 Hz to 20,000 Hz) with 200 Bars')
+        ax.set_title('Real-Time FFT Spectrum (0 Hz to 6000 Hz) with 61 Bars')
         
         # Display the table with the top 4 frequency-amplitude pairs
         ax_table.axis('tight')
@@ -113,7 +113,7 @@ try:
         table.set_fontsize(10)
         table.scale(1, 1.5)  # Adjust table size
         
-        plt.pause(0.02)  # Reduce pause time for smoother updates
+        plt.pause(0.04)  # Reduce pause time for smoother updates
 
 except KeyboardInterrupt:
     print("Stopped by user")

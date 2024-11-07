@@ -55,7 +55,7 @@ stream = sd.InputStream(callback=audio_callback, channels=1, samplerate=fs, bloc
 stream.start()
 
 # Define target frequency ranges for door unlock
-target_frequencies = [1000, 3000, 4000]
+target_frequencies = [1000, 2000, 3000]
 tolerance = 100  # ± tolerance in Hz
 
 try:

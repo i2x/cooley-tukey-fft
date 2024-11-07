@@ -13,11 +13,15 @@ def cooley_tukey_fft(x):
     # Divide: even and odd indexed elements
     even_fft = cooley_tukey_fft(x[::2])
     odd_fft = cooley_tukey_fft(x[1::2])
-    
-    # Combine
+
+    # Combine with normalization to match np.fft.fft
     factor = np.exp(-2j * np.pi * np.arange(N) / N)
-    return np.concatenate([even_fft + factor[:N // 2] * odd_fft,
-                           even_fft - factor[:N // 2] * odd_fft])
+    combined_fft = np.concatenate([
+        even_fft + factor[:N // 2] * odd_fft,
+        even_fft - factor[:N // 2] * odd_fft
+    ])
+
+    return combined_fft
 
 # Function to pad the signal to the nearest power of 2
 def pad_to_power_of_two(signal):
@@ -58,15 +62,13 @@ def plot_signals(Hz=1):
     axs[1].legend()
 
     # Initial FFT (NumPy's FFT)
-    N = len(discrete_signal)
-    fft_result = np.fft.fft(discrete_signal)
-    fft_magnitude = np.abs(fft_result) / N
-    fft_frequency = np.fft.fftfreq(N, 1/fs)
-    positive_freq_indices = np.where(fft_frequency >= 0)
-    fft_magnitude = fft_magnitude[positive_freq_indices]
-    fft_frequency = fft_frequency[positive_freq_indices]
+    padded_signal = pad_to_power_of_two(discrete_signal)
+    N = len(padded_signal)
+    fft_result = np.fft.fft(padded_signal)
+    fft_magnitude = np.abs(fft_result)[:N // 2] / (N // 2)  # Only positive frequencies
+    fft_frequency = np.fft.fftfreq(N, 1/fs)[:N // 2]
 
-    fft_markerline, fft_stemlines, fft_baseline = axs[2].stem(fft_frequency, fft_magnitude, linefmt='green', markerfmt='go', basefmt=" ")
+    axs[2].stem(fft_frequency, fft_magnitude, linefmt='green', markerfmt='go', basefmt=" ")
     axs[2].set_title('FFT of Discrete Signal (Positive Frequencies)')
     axs[2].set_xlabel('Frequency (Hz)')
     axs[2].set_ylabel('Magnitude')
@@ -74,17 +76,15 @@ def plot_signals(Hz=1):
     axs[2].set_xlim(0, 10)  # Set x-axis limits
 
     # Custom FFT (Cooley–Tukey)
-    padded_signal = pad_to_power_of_two(discrete_signal)
     custom_fft_result = cooley_tukey_fft(padded_signal)
-    custom_fft_magnitude = np.abs(custom_fft_result) / len(padded_signal)
-    custom_fft_magnitude = custom_fft_magnitude[:N // 2]  # Truncate to match original length
+    custom_fft_magnitude = np.abs(custom_fft_result)[:N // 2] / (N // 2)  # Normalize and take positive frequencies
 
-    custom_fft_markerline, custom_fft_stemlines, custom_fft_baseline = axs[3].stem(fft_frequency, custom_fft_magnitude[:len(fft_frequency)], linefmt='purple', markerfmt='mo', basefmt=" ")
+    axs[3].stem(fft_frequency, custom_fft_magnitude, linefmt='purple', markerfmt='mo', basefmt=" ")
     axs[3].set_title('Cooley–Tukey FFT (Positive Frequencies)')
     axs[3].set_xlabel('Frequency (Hz)')
     axs[3].set_ylabel('Magnitude')
     axs[3].grid()
-    axs[3].set_xlim(0, 10)  # Set x-axis limits
+    axs[3].set_xlim(0, 10)  # Set x-axis limits same as subplot 3
 
     # Add slider
     ax_slider = plt.axes([0.2, 0.05, 0.65, 0.03], facecolor='lightgoldenrodyellow')
@@ -110,9 +110,9 @@ def plot_signals(Hz=1):
         axs[1].legend()
 
         # Update NumPy FFT
-        fft_result = np.fft.fft(discrete_signal)
-        fft_magnitude = np.abs(fft_result) / N
-        fft_magnitude = fft_magnitude[positive_freq_indices]
+        padded_signal = pad_to_power_of_two(discrete_signal)
+        fft_result = np.fft.fft(padded_signal)
+        fft_magnitude = np.abs(fft_result)[:N // 2] / (N // 2)
 
         axs[2].cla()
         axs[2].stem(fft_frequency, fft_magnitude, linefmt='green', markerfmt='go', basefmt=" ")
@@ -123,13 +123,11 @@ def plot_signals(Hz=1):
         axs[2].set_xlim(0, 10)  # Set x-axis limits
 
         # Update Cooley–Tukey FFT
-        padded_signal = pad_to_power_of_two(discrete_signal)
         custom_fft_result = cooley_tukey_fft(padded_signal)
-        custom_fft_magnitude = np.abs(custom_fft_result) / len(padded_signal)
-        custom_fft_magnitude = custom_fft_magnitude[:N // 2]
+        custom_fft_magnitude = np.abs(custom_fft_result)[:N // 2] / (N // 2)
 
         axs[3].cla()
-        axs[3].stem(fft_frequency, custom_fft_magnitude[:len(fft_frequency)], linefmt='purple', markerfmt='mo', basefmt=" ")
+        axs[3].stem(fft_frequency, custom_fft_magnitude, linefmt='purple', markerfmt='mo', basefmt=" ")
         axs[3].set_title('Cooley–Tukey FFT (Positive Frequencies)')
         axs[3].set_xlabel('Frequency (Hz)')
         axs[3].set_ylabel('Magnitude')
